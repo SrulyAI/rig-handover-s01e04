@@ -1,0 +1,51 @@
+# Plan morning-digest § 3 and § 4. Renders /digest/2026-10-28 in CI and deploys it to GitHub Pages
+# as a build artifact, so the preview HTML is never committed (ADR 0003). Run it by hand:
+# with the lane marker for review (§ 3), then with an empty marker for clean-up (§ 4).
+name: preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      marker:
+        description: LANE_MARKER for the banner (leave empty for "no marker set")
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: npm install -g pnpm@12.14.0 --ignore-scripts
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Save /digest/2026-10-28 as one HTML file
+        env:
+          LANE_MARKER: ${{ inputs.marker }}
+        run: |
+          pnpm start > rig.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://localhost:8787/health >/dev/null 2>&1 && break; sleep 1; done
+          mkdir -p site
+          curl -fsS http://localhost:8787/digest/2026-10-28 -o site/index.html
+          grep -c '<table>' site/index.html
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
