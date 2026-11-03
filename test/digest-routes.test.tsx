@@ -34,7 +34,8 @@ describe('digest page', () => {
   it('says the bad line did not parse', async () => {
     const res = await createApp(config).request('/digest/2026-10-28');
     expect(res.status).toBe(200);
-    expect(await res.text()).toContain("didn't parse");
+    // hono/jsx escapes the apostrophe in text as &#39;.
+    expect(await res.text()).toContain('1 line didn&#39;t parse');
   });
 
   it('is 404 for a night with no file', async () => {
