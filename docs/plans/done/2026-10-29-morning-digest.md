@@ -1,8 +1,9 @@
 ---
 plan: morning-digest
-status: ready
+status: done
 owner: rook
 opened: 2026-10-29
+closed: 2026-11-03
 ---
 
 # Morning digest
@@ -77,3 +78,22 @@ page again with `LANE_MARKER` unset (the banner reads "no marker set") and uploa
 link. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link no longer shows the lane marker.
+
+## Issues
+
+| # | Issue | Blocked by | Worker | Closed |
+|---|-------|-----------|--------|--------|
+| 1 | Digest types: DigestRow and readNight signature | — | claude-code · opus-5.5 · low | 2026-11-03 |
+| 2 | Run log reader | #1 | claude-code · opus-5.5 · low | 2026-11-03 |
+| 3 | Digest page: GET /digest/:night | #1 to start, #2 to finish | claude-code · sonnet-5.5 · unknown | 2026-11-03 |
+| 4 | Digest JSON: GET /api/digest/:night | #1 to start, #2 and #3 to finish | claude-code · sonnet-5.5 · unknown | 2026-11-03 |
+| 5 | Board links each night to its digest | #1 to start, #2 and #3 to finish | claude-code · sonnet-5.5 · unknown | 2026-11-03 |
+| 6 | Route tests for the digest page and JSON | #1 to start, #3 and #4 to finish | claude-code · sonnet-5.5 · unknown | 2026-11-03 |
+| 7 | Preview for review | #3 | claude-code · opus-5.5 · low | 2026-11-03 |
+| 8 | Clean up: take the marker off the preview | #7, and the review | claude-code · opus-5.5 · low | 2026-11-03 |
+
+§ 1 was split in two so § 2 could start on the types alone. #3–#6 ran as four parallel workers in their
+own worktrees and landed on main one at a time. One assertion in #6 was fixed by the lead (opus-5.5):
+hono/jsx escapes the apostrophe in "didn't". #7 was closed when the link was sent and reopened until
+the reviewer had looked. The preview is built in CI and deployed as a Pages artifact, so it was never
+committed; the first run, which held the marked copy, was deleted after the clean-up deploy.
